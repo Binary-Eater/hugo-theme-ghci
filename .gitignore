@@ -62,4 +62,7 @@ hugo.exe
 hugo.darwin
 hugo.linux
 
+# Build lock file
+.hugo_build.lock
+
 # End of https://www.toptal.com/developers/gitignore/api/hugo,emacs
