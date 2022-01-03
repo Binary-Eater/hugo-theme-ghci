@@ -1,14 +1,15 @@
-$charcolor: #00f633;
-$textcolor: #00f633;
+$charcolor: #8f4e8b;
+$textcolor: #c8cacc;
 body {
-    background: black;
+    background: #5e5086;
 
     #prompt {
         color: $textcolor;
     }
 
     #keyword-main {
-        color: $charcolor;
+        color: #2f2742;
+        // Color used in haskell svg but too light: #453a62;
     }
 
     #keyword-secondary {

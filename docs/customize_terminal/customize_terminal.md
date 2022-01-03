@@ -1,6 +1,10 @@
 # Customize the terminal as you like
 
 ## Note
+Inherited from [hugo-theme-shell](https://github.com/Yukuro/hugo-theme-shell).
+
+**TODO:** Needs to be rewritten for `hugo-theme-ghci`.
+
 This document explains how to customize the terminal, but it is a temporary solution.\
 It is subject to change in future updates.
 

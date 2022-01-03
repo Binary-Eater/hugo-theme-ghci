@@ -1,21 +1,31 @@
-$charcolor: #ffffff;
+$charcolor: #16C60C;
+$textcolor: #ffffff;
 body {
     background: #002454;
 
-    #terminal {
+    #prompt {
+        color: $textcolor;
+    }
+
+    #keyword-main {
+        color: #C19C00;
+        // Color used in haskell svg but too light: #453a62;
+    }
+
+    #keyword-secondary {
         color: $charcolor;
     }
 
-    #user {
-        color: #ffffff;
+    #ghcVersion {
+        color: $textcolor;
     }
 
-    #dir {
-        color: #ffffff;
+    #output {
+        color: $textcolor;
     }
 
     .Typewriter__cursor {
-        color: $charcolor;
+        color: $textcolor;
     }
 }
 

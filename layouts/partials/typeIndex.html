@@ -1,66 +1,90 @@
-<span id="ps1_01"></span> <span id="cd"></span> <br>
-<span id="ps1_02"></span> <span id="cat"></span> <br>
-<span id="std_out_01"></span> <br>
-<span id="ps1_03"></span> <span id="tree"></span> <br>
-<span id="std_out_02"></span> <br>
-<span id="ps1_04"></span>
+<span id="ghci_heading"></span><br>
+{{ $range_span_fmt_str := "<span id='ghci_%s_%.2d'></span><span id='%[1]s_%.2d'></span><br>" -}}
+{{ range $index, $_ := .imports -}}
+    {{ printf $range_span_fmt_str "import" $index | safeHTML }}
+{{ end -}}
+{{ range $index, $_ := .sysInfoFcn -}}
+    {{ printf $range_span_fmt_str "sys_info_fcn" $index | safeHTML }}
+{{ end -}}
+<span id="ghci_sys_info_fcn_invoke"></span><span id="sys_info_fcn_invoke"></span><br>
+<span id="sys_info_fcn_output"></span><br>
+<span id="ghci_description_fcn_invoke"></span><span id="description_fcn_invoke"></span><br>
+<span id="description_fcn_output"></span><br>
+{{ if ne (len .pictureFcnInvoke) 0 -}}
+    <span id="ghci_picture_fcn_invoke"></span><span id="picture_fcn_invoke"></span><br>
+{{ end -}}
+{{ if ne (len .pictureFcnOutput) 0 -}}
+    <span id="picture_fcn_output"></span><br>
+{{ end -}}
+{{ if ne (len .activityFcnInvoke) 0 -}}
+    <span id="ghci_activity_fcn_invoke"></span><span id="activity_fcn_invoke"></span><br>
+{{ end -}}
+{{ if ne (len .activityFcnOutput) 0 -}}
+    <span id="activity_fcn_output"></span><br>
+{{ end -}}
+<span id="ghci"></span><br>
+<br>
 
+{{ with resources.Get "js/typewriter.js" | resources.Minify -}}
+    <script type="text/javascript" src={{ .RelPermalink }}></script>
+{{ end -}}
 <script type="text/javascript">
-    async function typewriter(text, elementId, waitAfter) {
-        var n = 0,
-            isTag = false
-        addText = "";
-        const el = document.getElementById(elementId);
-
-        const wait = () => new Promise(r => setTimeout(r, waitAfter));
-        const nowait = () => new Promise(r => r());
-
-        const render = () => el.innerHTML = (text.slice(0, n + 1) + addText);
-
-        const cursor = document.createElement('span');
-        cursor.id = "blink";
-
-        el.style.setProperty("--cursor-visibility", "visible");
-        while (n < text.length) {
-            if (text.charAt(n + 1) === "<") isTag = true;
-            if (text.charAt(n + 1) === ">") isTag = false;
-
-            if (isTag) {
-                n++;
-                continue;
-            }
-
-            requestAnimationFrame(render);
-
-            if (waitAfter === 0) {
-                await nowait();
-            } else {
-                await wait();
-            }
-
-            n++;
-        }
-        el.style.setProperty("--cursor-visibility", "collapse");
-    }
-
-    function parseDelay(d) {
-        const parsed = parseInt(d, 10);
-        if (isNaN(parsed)) return 0;
-        return parsed;
-    }
-
-    const ps1Delay = parseDelay("{{ .ps1delay }}"),
-        stdoutDelay = parseDelay("{{ .stdoutdelay }}"),
-        commandDelay = parseDelay("{{ .commanddelay }}");
-    const typeeffetct = async () => {
-        await typewriter("{{ .env }}", "ps1_01", ps1Delay); await typewriter("{{ .cd }}", "cd", commandDelay);
-        await typewriter("{{ .envWithDir }}", "ps1_02", ps1Delay); await typewriter("{{ .cat }}", "cat", commandDelay);
-        await typewriter("{{ .description }}", "std_out_01", stdoutDelay);
-        await typewriter("{{ .envWithDir }}", "ps1_03", ps1Delay); await typewriter("{{ .tree }}", "tree", commandDelay);
-        await typewriter("{{ .leaf }}", "std_out_02", stdoutDelay);
-        await typewriter("{{ .envWithDir }}", "ps1_04", ps1Delay);
+    const typeeffect = async () => {
+        await typewriter({{ .heading | safeHTML }}, "ghci_heading", {{ .headingDelay }});
+        {{ range $index, $import_str := .imports -}}
+            {{ $import_id_str := printf "import_%.2d" $index -}}
+            await typewriter(
+                {{- $.prompt }}, {{ printf "ghci_%s" $import_id_str }}, {{ $.promptDelay -}}
+            );
+            await typewriter({{ $import_str }}, {{ $import_id_str }}, {{ $.codeDelay }});
+        {{ end -}}
+        {{ range $index, $sys_info_fcn_str := .sysInfoFcn -}}
+            {{ $sys_info_fcn_id_str := printf "sys_info_fcn_%.2d" $index -}}
+            {{ $prompt_str := "" -}}
+            {{ if eq $index 0 -}}
+                {{ $prompt_str = $.prompt -}}
+            {{- else -}}
+                {{ $prompt_str = $.promptMultiline -}}
+            {{ end -}}
+            await typewriter(
+                {{- $prompt_str }}, {{ printf "ghci_%s" $sys_info_fcn_id_str }}, {{ $.promptDelay -}}
+            );
+            await typewriter(
+                {{- $sys_info_fcn_str }}, {{ $sys_info_fcn_id_str }}, {{ $.codeDelay -}}
+            );
+        {{ end -}}
+        await typewriter(
+            {{- .prompt }}, "ghci_sys_info_fcn_invoke", {{ .promptDelay -}}
+        );
+        await typewriter({{ .sysInfoFcnInvoke }}, "sys_info_fcn_invoke", {{ .codeDelay }});
+        await typewriter({{ .sysInfoFcnOutput }}, "sys_info_fcn_output", {{ .stdoutDelay }});
+        await typewriter({{ .prompt }}, "ghci_description_fcn_invoke", {{ .promptDelay }});
+        await typewriter({{ .descriptionFcnInvoke }}, "description_fcn_invoke", {{ .codeDelay }});
+        await typewriter({{ .descriptionFcnOutput }}, "description_fcn_output", {{ .stdoutDelay }});
+        {{ if ne (len .pictureFcnInvoke) 0 -}}
+            await typewriter({{ .prompt }}, "ghci_picture_fcn_invoke", {{ .promptDelay }});
+            await typewriter({{ .pictureFcnInvoke }}, "picture_fcn_invoke", {{ .codeDelay }});
+        {{ end -}}
+        {{ if ne (len .pictureFcnOutput) 0 -}}
+            await typewriter({{ .pictureFcnOutput }}, "picture_fcn_output", {{ .stdoutDelay }});
+        {{ end -}}
+        {{ if ne (len .activityFcnInvoke) 0 -}}
+            await typewriter({{ .prompt }}, "ghci_activity_fcn_invoke", {{ .promptDelay }});
+            await typewriter({{ .activityFcnInvoke }}, "activity_fcn_invoke", {{ .codeDelay }});
+        {{ end -}}
+        {{ if ne (len .activityFcnOutput) 0 -}}
+            await typewriter({{ .activityFcnOutput }}, "activity_fcn_output", {{ .stdoutDelay }});
+        {{ end -}}
+        await typewriter({{ .prompt }}, "ghci", {{ .promptDelay }});
         return;
-    }
+    };
 
-    typeeffetct()
+    // FIXME: find a better solution for bottom scroll with dynamically created elements
+    const scrollTimerId = setInterval(
+        () => document.body.scrollTo({top: document.body.scrollHeight, behavior: "smooth"}),
+        {{ .scrollDownUpdateInterval }}
+    );
+
+    typeeffect()
+        .then(() => setTimeout(() => clearInterval(scrollTimerId), {{ .scrollDownTimeoutAfterTypeEffect }}));
 </script>

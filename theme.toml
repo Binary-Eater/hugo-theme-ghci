@@ -1,16 +1,20 @@
 # theme.toml template for a Hugo theme
 # See https://github.com/gohugoio/hugoThemes#themetoml for an example
 
-name = "Shell"
+name = "GHCi"
 license = "MIT"
-licenselink = "https://github.com/Yukuro/hugo-theme-shell/blob/master/LICENSE"
-description = "Hugo Shell theme : Terminal-like theme with selectable color schemes."
-homepage = "https://github.com/Yukuro/hugo-theme-shell/"
-demosite = "https://hugo-theme-shell.netlify.app/"
+licenselink = "https://github.com/Binary-Eater/hugo-theme-ghci/blob/trunk/LICENSE"
+description = "Hugo GHCi theme : Terminal-like theme with selectable color schemes."
+homepage = "https://github.com/Binary-Eater/hugo-theme-ghci/"
+demosite = "https://binary-eater.github.io/hugo-theme-ghci"
 tags = ["responsive", "minimal", "light", "personal", "dark", "portfolio"]
-features = ["terminal-like"]
+features = ["ghci-like","haskell"]
 min_version = "0.85.0"
 
 [author]
-  name = "Yukuro"
-  homepage = "https://unknownsky.net/"
+  name = "Binary-Eater" # Acknowledgements to @Yukuro for hugo-theme-shell
+                        # that is the base for this project
+                        #
+                        # ref: https://github.com/Yukuro/hugo-theme-shell
+                        # ref: https://www.unknownsky.net/
+  homepage = "https://binary-eater.github.io/"

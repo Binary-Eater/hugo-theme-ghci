@@ -1,55 +1,121 @@
-{{ define "main" }}
-    {{ $env := printf "<strong><span id='user'>%s@%s</span><span id='terminal'>:</span><span id='dir'>~/%s</span></strong><span id='terminal'>$</span>" .Site.Params.Terminal.userName .Site.Params.Terminal.pcName "" | safeHTML }}
-    {{ $envWithDir := printf "<strong><span id='user'>%s@%s</span><span id='terminal'>:</span><span id='dir'>~/%s</span></strong><span id='terminal'>$</span>" .Site.Params.Terminal.userName .Site.Params.Terminal.pcName .Site.Params.Terminal.workDir | safeHTML }}
+{{- define "main" -}}
+    {{- $heading := printf "<strong><span id='prompt'>GHCi, version <span id='ghcVersion'>%s</span>: <a href='%s'>%[2]s</a>&nbsp;&nbsp;:? for help</span></strong>" .Site.Params.Prompt.ghcVersion .Site.Params.Prompt.ghcURL | safeHTML -}}
+    {{- $prompt := "<strong><span id='prompt'>ghci> </span></strong>" -}}
+    {{- $prompt_multiline := "<strong><span id='prompt'>| </span></strong>" -}}
 
-    {{ $cd := printf "<span id='terminal'>cd %s</span>" .Site.Params.Terminal.workDir | safeHTML }}
-    {{ $cat := printf "<span id=terminal>cat %s</span>" .Site.Params.Terminal.profile | safeHTML }}
+    {{- $imports := slice "<span id='prompt'><span id='keyword-main'>import qualified</span> System.Posix.User <span id='keyword-secondary'>as</span> User (getLoginName)</span>" -}}
+    {{- $imports = $imports | append "<span id='prompt'><span id='keyword-main'>import</span> Network.HostName (getHostName)</span>" -}}
+    {{- if .Site.Params.Profile.Picture.use -}}
+        {{- $imports = $imports | append "<span id='prompt'><span id='keyword-main'>import qualified</span> Data.Sixel <span id='keyword-secondary'>as</span> Sixel (putSixel)</span>" -}}
+    {{- end -}}
 
-    {{ $description := "" }}
-    {{ if eq (substr .Site.Params.Terminal.description -3 3) ".md" }}
-        {{ $s := "" }}
-        {{ with .Site.GetPage .Site.Params.Terminal.description }}
-            <!-- replace the first  p tag with a br tag  -->
-            {{ $s = replaceRE "</?p[^>]*>" "" .Content 1 }}
-        {{ end }}
-    {{ $description = printf "<span id='terminal'>%s</span>" $s | safeHTML}}
-    {{ else }}
-    {{ $limit := sub (len (findRE "\n" .Site.Params.Terminal.description)) 1 }}
-    {{ $description = printf "<span id='terminal'>%s</span>" .Site.Params.Terminal.description }}
-    {{ $description = replaceRE "\n" "<br>" $description $limit| safeHTML }}
-    {{ end }}
+    {{- $import_site_package := "<span id='prompt'><span id='keyword-main'>import" -}}
+    {{- if .Site.Params.Package.importQualified -}}
+        {{- $import_site_package = printf "%s qualified</span>" $import_site_package -}}
+    {{- else -}}
+        {{- $import_site_package = printf "%s</span>" $import_site_package -}}
+    {{- end -}}
+    {{- $import_site_package = printf "%s %s (%s" $import_site_package .Site.Params.Package.importPackage .Site.Params.Profile.profileDescriptionFcnName | safeHTML -}}
+    {{- if .Site.Params.Profile.Picture.use -}}
+        {{- $import_site_package = printf "%s,%s" $import_site_package .Site.Params.Profile.Picture.fcnName | safeHTML -}}
+    {{- end -}}
+    {{- if .Site.Params.Tree.use -}}
+        {{- $import_site_package = printf "%s,%s" $import_site_package .Site.Params.Tree.fcnName | safeHTML -}}
+    {{- end -}}
+    {{- $import_site_package = printf "%s)</span>" $import_site_package -}}
 
-    {{ $tree := "" }}
-    {{ $leaf := "" }}
-    {{ if .Site.Params.Tree.use }}
-    {{ $tree = printf "<span id='terminal'>tree ./%s/</span>" .Site.Params.Tree.folderName | safeHTML}}
-    {{ $leaf = printf "%s<strong><span id='dir'>./%s/</span></strong><br>" $leaf .Site.Params.Tree.folderName | safeHTML}}
-        {{ range $index, $val := .Site.Params.Tree.files }}
-            {{ $ac := index $val 0}}
-            {{ $link := index $val 1}}
+    {{- $imports = $imports | append $import_site_package -}}
 
-            <!-- pass link (i.e. http, https) and mailto -->
-            {{ $l := $.Site.GetPage $link }}
-            {{ if $l }}
-                {{ $link = $l.Permalink}}
-            {{ end }}
-            
-            {{ if eq (add $index 1) (len $.Site.Params.Tree.files) }}
-            {{ $leaf = printf "<span id='terminal'>%s└── <a href='%s'>%s</a></span>" $leaf $link $ac | safeHTML}}
-            {{ else }}
-            {{ $leaf = printf "<span id='terminal'>%s├── <a href='%s'>%s</a></span><br>" $leaf $link $ac | safeHTML}}
-            {{ end }}
-        {{ end }}
-    {{ end }}
+    {{- $sys_info_fcn := slice "<span id='prompt'>{:</span>" -}}
+    {{- $sys_info_fcn = $sys_info_fcn | append (printf "<span id='prompt'>%s <span id='keyword-main'>::</span> <span id='keyword-secondary'>IO ()</span></span>" .Site.Params.Profile.sysInfoFcnName | safeHTML) -}}
+    {{/* use &lt; to avoid '<' from being identified as beginning of tag in typewriter functionality */}}
+    {{- $sys_info_fcn = $sys_info_fcn | append (printf "<span id='prompt'>%s <span id='keyword-main'>=</span> do loginName <span id='keyword-secondary'>&lt;-</span> User.getLoginName</span>" .Site.Params.Profile.sysInfoFcnName | safeHTML) -}}
+    {{- $sys_info_fcn = $sys_info_fcn | append "<span id='prompt'>&nbsp;&nbsp;&nbsp;&nbsp;hostName <span id='keyword-secondary'>&lt;-</span> getHostName</span>" -}}
+    {{- $sys_info_fcn = $sys_info_fcn | append `<span id='prompt'>&nbsp;&nbsp;&nbsp;&nbsp;putStrLn <span id='keyword-main'>$</span> "Login name: " <span id='keyword-secondary'>++</span> loginName</span>` -}}
+    {{- $sys_info_fcn = $sys_info_fcn | append `<span id='prompt'>&nbsp;&nbsp;&nbsp;&nbsp;putStrLn <span id='keyword-main'>$</span> "Host name: " <span id='keyword-secondary'>++</span> hostName</span>` -}}
+    {{- $sys_info_fcn = $sys_info_fcn | append "<span id='prompt'>}:</span>" -}}
 
-    {{ $end := $env }}
+    {{- $sys_info_fcn_invoke := printf "<span id='prompt'>%s</span>" .Site.Params.Profile.sysInfoFcnName | safeHTML -}}
 
-    {{ $payload := delimit (slice $cd $cat $description $tree $leaf $end) "" }}
+    {{- $sys_info_fcn_output := printf "<span id='output'>Login name: %s<br>Host name: %s</span>" .Site.Params.Profile.userName .Site.Params.Profile.pcName | safeHTML -}}
 
-    {{ $ps1Delay := $.Site.Params.Terminal.ps1Delay }}
-    {{ $stdoutDelay :=  $.Site.Params.Terminal.stdoutDelay }}
-    {{ $commandDelay := $.Site.Params.Terminal.commandDelay }}
+    {{- $invoke_qualified_fcn_fmt_str := "<span id='prompt'>%s.%s</span>" -}}
+    {{- $invoke_fcn_fmt_str := "<span id='prompt'>%s</span>" -}}
 
-    {{ partial "partials/typeIndex.html" (dict "context" . "env" $env "cd" $cd "envWithDir" $envWithDir "cat" $cat "description" $description "tree" $tree "leaf" $leaf "ps1delay" $ps1Delay "stdoutdelay" $stdoutDelay "commanddelay" $commandDelay ) }}
+    {{- $description_fcn_invoke := "" -}}
+    {{- if .Site.Params.Package.importQualified -}}
+        {{- $description_fcn_invoke = printf $invoke_qualified_fcn_fmt_str .Site.Params.Package.importPackage .Site.Params.Profile.profileDescriptionFcnName | safeHTML -}}
+    {{- else -}}
+        {{- $description_fcn_invoke = printf $invoke_fcn_fmt_str .Site.Params.Profile.profileDescriptionFcnName | safeHTML -}}
+    {{- end -}}
 
-{{ end }}
+    {{- $description_fcn_output := "" -}}
+    {{- if or (eq (substr .Site.Params.Profile.description -3 3) ".md") (eq (substr .Site.Params.Profile.description -4 4) ".org") -}}
+        {{- $s := "" -}}
+        {{- with .Site.GetPage .Site.Params.Profile.description -}}
+            {{/* replace the first  p tag with a br tag */}}
+            {{- $s = replaceRE "</?p[^>]*>" "" .Content 1 -}}
+        {{- end -}}
+        {{- $description_fcn_output = printf "<span id='output'>%s</span>" $s | safeHTML -}}
+    {{- else -}}
+        {{- $limit := sub (len (findRE "\n" .Site.Params.Profile.description)) 1 -}}
+        {{- $description_fcn_output = printf "<span id='output'>%s</span>" .Site.Params.Profile.description | safeHTML -}}
+        {{- $description_fcn_output = replaceRE "\n" "<br>" $description_fcn_output $limit | safeHTML -}}
+    {{- end -}}
+
+    {{- $picture_fcn_invoke := "" -}}
+    {{- $picture_fcn_output := "" -}}
+    {{- if .Site.Params.Profile.Picture.use -}}
+        {{- if .Site.Params.Package.importQualified -}}
+            {{- $picture_fcn_invoke = printf "<span id='prompt'>Sixel.putSixel %s.%s</span>" .Site.Params.Package.importPackage .Site.Params.Profile.Picture.fcnName | safeHTML -}}
+        {{- else -}}
+            {{- $picture_fcn_invoke = printf "<span id='prompt'>Sixel.putSixel %s</span>" .Site.Params.Profile.Picture.fcnName | safeHTML -}}
+        {{- end -}}
+
+        {{- if ne (len .Site.Params.Profile.Picture.githubUserName) 0 -}}
+            {{- $picture_fcn_output = printf "<img id='profile_image' src='https://github.com/%s.png' alt='%[1]s_profile_picture' />" .Site.Params.Profile.Picture.githubUserName -}}
+        {{- else -}}
+            {{- $picture_fcn_output = printf "<img id='profile_image' src='%s' alt='profile_image' />" .Site.Params.Profile.Picture.src -}}
+        {{- end -}}
+    {{- end -}}
+
+    {{- $activity_fcn_invoke := "" -}}
+    {{- $activity_fcn_output := "" -}}
+    {{- if .Site.Params.Tree.use -}}
+        {{- if .Site.Params.Package.importQualified -}}
+            {{- $activity_fcn_invoke = printf $invoke_qualified_fcn_fmt_str .Site.Params.Package.importPackage .Site.Params.Tree.fcnName | safeHTML -}}
+        {{- else -}}
+            {{- $activity_fcn_invoke = printf $invoke_fcn_fmt_str .Site.Params.Tree.fcnName | safeHTML -}}
+        {{- end -}}
+
+        {{- $activity_fcn_output = "<span id='output'>[" -}}
+        {{- range $index, $val := .Site.Params.Tree.files -}}
+            {{- $ac := index $val 0 -}}
+            {{- $link := index $val 1 -}}
+
+            {{/* pass link (i.e. http, https) and mailto */}}
+            {{- with $.Site.GetPage $link -}}
+                {{- $link = .Permalink -}}
+            {{- end -}}
+
+            {{- if eq $index 0 -}}
+                {{- $activity_fcn_output = printf "%s <a href='%s'>%q</a> " $activity_fcn_output $link $ac | safeHTML -}}
+            {{- else if eq $index 1 -}}
+                {{- $activity_fcn_output = printf "%s<br>, <a href='%s'>%q</a><br>" $activity_fcn_output $link $ac | safeHTML -}}
+            {{- else -}}
+                {{- $activity_fcn_output = printf "%s, <a href='%s'>%q</a><br>" $activity_fcn_output $link $ac | safeHTML -}}
+            {{- end -}}
+        {{- end -}}
+        {{- $activity_fcn_output = printf "%s]</span>" $activity_fcn_output -}}
+    {{- end -}}
+
+    {{- $heading_delay := .Site.Params.Prompt.headingDelay -}}
+    {{- $prompt_delay := .Site.Params.Prompt.promptDelay -}}
+    {{- $stdout_delay :=  .Site.Params.Prompt.stdoutDelay -}}
+    {{- $code_delay := .Site.Params.Prompt.codeDelay -}}
+    {{- $scroll_down_update_interval := .Site.Params.Prompt.scrollDownUpdateInterval -}}
+    {{- $scroll_down_timeout_after_type_effect := .Site.Params.Prompt.scrollDownTimeoutAfterTypeEffect -}}
+
+    {{- partial "typeIndex.html" (dict "heading" $heading "prompt" $prompt "promptMultiline" $prompt_multiline "imports" $imports "sysInfoFcn" $sys_info_fcn "sysInfoFcnInvoke" $sys_info_fcn_invoke "sysInfoFcnOutput" $sys_info_fcn_output "descriptionFcnInvoke" $description_fcn_invoke "descriptionFcnOutput" $description_fcn_output "pictureFcnInvoke" $picture_fcn_invoke "pictureFcnOutput" $picture_fcn_output "activityFcnInvoke" $activity_fcn_invoke "activityFcnOutput" $activity_fcn_output "headingDelay" $heading_delay "promptDelay" $prompt_delay "stdoutDelay" $stdout_delay "codeDelay" $code_delay "scrollDownUpdateInterval" $scroll_down_update_interval "scrollDownTimeoutAfterTypeEffect" $scroll_down_timeout_after_type_effect) -}}
+
+{{- end -}}

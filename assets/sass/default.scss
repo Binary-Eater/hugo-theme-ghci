@@ -8,7 +8,7 @@ html,
 body {
     width: 100%;
     height: 100%;
-    overflow: auto;
+    overflow-y: hidden;
 
     font-family: "Inconsolata", monospace;
     font-size: 4vmin;
@@ -17,7 +17,9 @@ body {
 }
 
 body {
+    overflow-y: auto;
     margin: 0;
+
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -26,7 +28,11 @@ body {
 
 #content {
     min-width: 82vmin;
-    min-height: 82vmin;
+    height: 82vmin;
+}
+
+#profile_image {
+    max-height: 460px;
 }
 
 ::-webkit-scrollbar {

@@ -1,17 +1,26 @@
 $charcolor: black;
+$textcolor: black;
 body {
     background: white;
 
-    #terminal {
-        color: black;
+    #prompt {
+        color: $textcolor;
     }
 
-    #user {
-        color: black;
+    #keyword-main {
+        color: $charcolor;
     }
 
-    #dir {
-        color: black;
+    #keyword-secondary {
+        color: $charcolor;
+    }
+
+    #ghcVersion {
+        color: $textcolor;
+    }
+
+    #output {
+        color: $textcolor;
     }
 
     .Typewriter__cursor {
