@@ -2,7 +2,7 @@
 <span id="activity-content"></span> <br>
 
 {{ with resources.Get "js/typewriter.js" | resources.Minify -}}
-    <script type="text/javascript" src={{ .RelPermalink }}></script>
+    <script type="text/javascript" src={{ .Permalink }}></script>
 {{ end -}}
 <script type="text/javascript">
     const titleDelay = parseDelay("{{ .titleDelay }}"),

@@ -1,4 +1,4 @@
-baseURL = "https://www.example.com/"
+baseURL = "https://binary-eater.github.io/hugo-theme-ghci/"
 title = "GHCi"
 
 # prevent build failures when using Hugo's Instagram shortcode due to deprecated
