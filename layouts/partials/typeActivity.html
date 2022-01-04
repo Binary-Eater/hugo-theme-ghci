@@ -5,11 +5,9 @@
     <script type="text/javascript" src={{ .Permalink }}></script>
 {{ end -}}
 <script type="text/javascript">
-    const titleDelay = parseDelay("{{ .titleDelay }}"),
-        contentDelay = parseDelay("{{ .contentDelay }}");
     const typeeffect = async () => {
-        await typewriter("{{ .title }}", , "activity-title", titleDelay);
-        await typewriter("{{ .content }}", "activity-content", contentDelay);
+        await typewriter({{ .title }}, "activity-title", {{ .titleDelay }});
+        await typewriter({{ .content }}, "activity-content", {{ .contentDelay }});
         return;
     };
 

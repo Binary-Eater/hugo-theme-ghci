@@ -4,5 +4,5 @@
     {{ $content := printf "<span id='prompt'>%s</span>" .Content }}
 
 
-    {{ partial "partials/typeActivity.html" (dict "context" . "title" $title "content" $content "titleDelay" $.Site.Params.Prompt.titleDelay "contentDelay" $.Site.Params.Prompt.contentDelay )}}
+    {{ partial "partials/typeActivity.html" (dict "title" $title "content" $content "titleDelay" $.Site.Params.Prompt.titleDelay "contentDelay" $.Site.Params.Prompt.contentDelay )}}
 {{ end }}
