@@ -16,7 +16,7 @@ this project is forked from and its author,
 - Selectable color schemes
   - Built-in themes
     - `Haskell`
-    ![Haskell](https://raw.githubusercontent.com/Binary-Eater/hugo-theme-ghci/trunk/images/images/tn.png)
+    ![Haskell](https://raw.githubusercontent.com/Binary-Eater/hugo-theme-ghci/trunk/images/tn.png)
 
     - `prompt-powershell`
     ![prompt-powershell](https://raw.githubusercontent.com/Binary-Eater/hugo-theme-ghci/trunk/images/powershell.png)
@@ -33,7 +33,7 @@ this project is forked from and its author,
   - [Mayccoll/Gogh](https://github.com/Mayccoll/Gogh) themes (an example listed below)
     - `Molokai`
     ![Molokai](https://raw.githubusercontent.com/Binary-Eater/hugo-theme-ghci/trunk/images/molokai.png)
-        
+
 - Minimal design
 - Responsive
 - [MathJax](https://www.mathjax.org/): Beautiful and accessible math in all browsers
